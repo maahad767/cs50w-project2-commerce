@@ -1,6 +1,45 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Listing: {{listing.title}}</h2>
+<h2>Listing: {{listing.title}}</h2>
+<div class="mb-3">
+    <form action="{% if in_watchlist %}{% url 'watchlist-remove' %}{% else %}{% url 'watchlist-create' %}{% endif %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-secondary">{% if in_watchlist %}Unwatchlist{% else %}Watchlist{% endif %}</button>
+    </form>
+</div>
+<img src="{{ listing.image_url }}" alt="..." style="max-height: 450px; object-fit: scale-down;">
+<p class="mb-3">{{ listing.description }}</p>
+<h4>${{ listing.current_bid }}</h4>
+
+<p>
+{{ listing.bids.count }} bids so far. {% if is_current_bid_mine %}Your bid is the current bid.{% endif %}
+</p>
+<form action="" class="form mb-3">
+    {% csrf_token %}
+    <div class="form-group">
+         {{ bid_form.amount }}
+    </div>
+    <button type="submit" class="btn btn-primary">Place Bid</button>
+</form>
+
+<h4>Details</h4>
+<ul>
+    <li>Listed by: <span class="text-primary">{{listing.owner}}</span></li>
+    <li>Category: {{listing.category.name|default:"No Category Listed"}}</li>
+</ul>
+
+<h4>Comments</h4>
+<ul>
+    <li><strong>{{"Ahad"}}:</strong> {{"nice product"}}</li>
+</ul>
+<form action="" class="form mb-3">
+    {% csrf_token %}
+     <div class="form-group">
+         {{ comment_form.body }}
+    </div>
+    <button type="submit" class="btn btn-primary">Comment</button>
+</form>
+
 
 {% endblock %}

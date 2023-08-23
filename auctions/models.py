@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.signals import post_save
 
 
 class User(AbstractUser):
@@ -10,7 +11,7 @@ class Category(models.Model):
     name = models.CharField(max_length=64)
     
     def __str__(self):
-        return f"{self.pk}: {self.name}"
+        return f"{self.name}"
         
     
 class Listing(models.Model):
@@ -25,8 +26,12 @@ class Listing(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    @property
+    def current_bid(self):
+        return self.bids.latest("id") if self.bids.exists() else self.minimum_bid_amount
+
     def __str__(self):
-        return f"{self.pk}: {self.title}"    
+        return f"{self.title}"    
 
 
 class Watchlist(models.Model):
@@ -49,6 +54,7 @@ class Bid(models.Model):
     
 
 class Comment(models.Model):
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     body = models.TextField()
     
@@ -58,3 +64,12 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.user}: {self.body[:30]}"
     
+    
+# signals
+def create_watchlist(sender, instance: User, created: bool, *args, **kwargs):
+    if not created:
+        return
+    
+    Watchlist.objects.create(owner=instance)
+
+post_save.connect(create_watchlist,  User)

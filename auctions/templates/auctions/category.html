@@ -1,9 +1,9 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2>Category: {{category}}</h2>
 
-    {% for listing in active_listings %}
+    {% for listing in category.listings.all %}
     <div class="card mb-3">
     <div class="row no-gutters">
         <div class="col-md-4">
@@ -11,9 +11,9 @@
         </div>
         <div class="col-md-8 text-center text-md-left">
         <div class="card-body">
-            <h4 class="card-title"><a href="{% url 'listing-detail' listing.pk %}" class="text-dark">{{ listing.title }}</a></h4>
+            <h4 class="card-title"><a href="{% url 'listing-detail' listing.pk %}" class="text-dark text-decoration-none">{{ listing.title }}</a></h4>
             <h5 class="card-title">Price: ${{ listing.minimum_bid_amount }}</h5>
-            <p class="card-text">{{ listing.description|truncatechars:"300" }}</p>
+            <p class="card-text">{{ listing.description }}</p>
             <p class="card-text"><small class="text-muted">Created: {{ listing.created_at }}</small></p>
         </div>
         </div>

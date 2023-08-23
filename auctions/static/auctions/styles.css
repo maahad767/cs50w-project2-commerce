@@ -1,8 +1,5 @@
+
 body {
     padding: 10px;
-}
-
-a, a:hover {
-    color: unset;
-    text-decoration: none;
+    width: 100%;
 }
