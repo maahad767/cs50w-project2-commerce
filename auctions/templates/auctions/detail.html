@@ -15,7 +15,7 @@
 <p>
 {{ listing.bids.count }} bids so far. {% if is_current_bid_mine %}Your bid is the current bid.{% endif %}
 </p>
-<form action="" class="form mb-3">
+<form action="{% url 'bid' listing.pk %}" class="form mb-3" method="post">
     {% csrf_token %}
     <div class="form-group">
          {{ bid_form.amount }}
@@ -31,9 +31,11 @@
 
 <h4>Comments</h4>
 <ul>
-    <li><strong>{{"Ahad"}}:</strong> {{"nice product"}}</li>
+    {% for comment in listing.comments.all %}
+    <li><strong>{{comment.user}}:</strong> {{comment.body}}</li>
+    {% endfor %}
 </ul>
-<form action="" class="form mb-3">
+<form action="{% url 'comment' listing.pk %}" class="form mb-3" method="post">
     {% csrf_token %}
      <div class="form-group">
          {{ comment_form.body }}

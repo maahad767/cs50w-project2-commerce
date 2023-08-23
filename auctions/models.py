@@ -28,7 +28,7 @@ class Listing(models.Model):
 
     @property
     def current_bid(self):
-        return self.bids.latest("id") if self.bids.exists() else self.minimum_bid_amount
+        return self.bids.latest("id").amount if self.bids.exists() else self.minimum_bid_amount
 
     def __str__(self):
         return f"{self.title}"    
