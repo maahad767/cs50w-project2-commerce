@@ -10,8 +10,8 @@
     <body>
         <h1>Auctions</h1>
         <div>
-            {% if user.is_authenticated %}
-                Signed in as <strong>{{ user.username }}</strong>.
+            {% if request.user.is_authenticated %}
+                Signed in as <strong><a href="{% url 'profile' request.user.username %}">{{ request.user.username }}</a></strong>.
             {% else %}
                 Not signed in.
             {% endif %}
@@ -24,12 +24,12 @@
                 <a class="nav-link" href="{% url 'categories' %}">Categories</a>
             </li>
              <li class="nav-item">
-                <a class="nav-link" href="{% url 'watchlist' %}">Watchlist <span class="btn btn-sm btn-secondary py-0">1</span></a>
+                <a class="nav-link" href="{% url 'watchlist' %}">Watchlist <span class="btn btn-sm btn-secondary py-0">{{request.user.watchlist.listings.count|default:0}}</span></a>
             </li>
              <li class="nav-item">
                 <a class="nav-link" href="{% url 'listing-create' %}">Create Listing</a>
             </li>
-            {% if user.is_authenticated %}
+            {% if request.user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                 </li>
@@ -43,6 +43,11 @@
             {% endif %}
         </ul>
         <hr>
+        {% for message in messages %}
+            <div class="alert alert-danger" role="alert">
+                {{message}}
+            </div>
+        {% endfor %}
         {% block body %}
         {% endblock %}
     </body>

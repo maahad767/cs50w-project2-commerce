@@ -3,18 +3,29 @@
 {% block body %}
 <h2>Listing: {{listing.title}}</h2>
 <div class="mb-3">
-    <form action="{% if in_watchlist %}{% url 'watchlist-remove' %}{% else %}{% url 'watchlist-create' %}{% endif %}">
+    <form action="{% if in_watchlist %}{% url 'watchlist-remove' %}{% else %}{% url 'watchlist-create' %}{% endif %}" method="post">
         {% csrf_token %}
+        <input type="hidden" name="listing" value="{{listing.pk}}">
         <button type="submit" class="btn btn-sm btn-secondary">{% if in_watchlist %}Unwatchlist{% else %}Watchlist{% endif %}</button>
     </form>
 </div>
-<img src="{{ listing.image_url }}" alt="..." style="max-height: 450px; object-fit: scale-down;">
+<img src="{{ listing.image_url }}" alt="..." style="max-height: 450px; object-fit: scale-down;" class="mb-3">
 <p class="mb-3">{{ listing.description }}</p>
-<h4>${{ listing.current_bid }}</h4>
+<div class="d-flex justify-items-start">
+<h3>${{ listing.current_bid }}</h3> 
+{% if listing.owner == request.user and listing.is_active %}
+<form action="{% url 'listing-close' listing.pk %}" method="post">
+{% csrf_token %}
+<button type="submit" class="btn btn-md btn-primary py-1">Close Auction</button>
+</form>
+{% endif %}
+</div>
 
+{% if listing.is_active %}
 <p>
 {{ listing.bids.count }} bids so far. {% if is_current_bid_mine %}Your bid is the current bid.{% endif %}
 </p>
+{% if request.user.is_authenticated %}
 <form action="{% url 'bid' listing.pk %}" class="form mb-3" method="post">
     {% csrf_token %}
     <div class="form-group">
@@ -22,10 +33,22 @@
     </div>
     <button type="submit" class="btn btn-primary">Place Bid</button>
 </form>
+{% else %}
+<p class="text-info"><a href="{% url 'login' %}">Login</a> to Bid in this listing</p>
+{% endif %}
+{% else %}
+<p class="mb-3">{{ listing.bids.count }} bids.
+    {% if is_current_bid_mine %}
+    You are the <strong class="text-success h2">Winner!!!</strong>
+    {% else %}
+     {{current_bid.bidder.username|title}} <strong class="text-success">Won</strong> this acution.
+    {% endif %}
+</p>
+{% endif %}
 
 <h4>Details</h4>
 <ul>
-    <li>Listed by: <span class="text-primary">{{listing.owner}}</span></li>
+    <li>Listed by: <a href="{% url 'profile' listing.owner.username %}">{{listing.owner}}</a></li>
     <li>Category: {{listing.category.name|default:"No Category Listed"}}</li>
 </ul>
 
@@ -35,6 +58,7 @@
     <li><strong>{{comment.user}}:</strong> {{comment.body}}</li>
     {% endfor %}
 </ul>
+{% if request.user.is_authenticated %}
 <form action="{% url 'comment' listing.pk %}" class="form mb-3" method="post">
     {% csrf_token %}
      <div class="form-group">
@@ -42,6 +66,7 @@
     </div>
     <button type="submit" class="btn btn-primary">Comment</button>
 </form>
-
-
+{% else %}
+<p class="text-info"><a href="{% url 'login' %}">Login</a> to comment in this listing</p>
+{% endif %}
 {% endblock %}
